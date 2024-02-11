@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/expenses.dart';
+// import 'package:flutter/services.dart';
 
 var kColorScheme =
     ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 7, 43, 73));
@@ -10,6 +11,12 @@ var kDarkColorScheme = ColorScheme.fromSeed(
 );
 
 void main() {
+  //откюлчаем поворот экрана
+  // WidgetsFlutterBinding.ensureInitialized();
+  // SystemChrome.setPreferredOrientations(
+  //   [DeviceOrientation.portraitUp],
+  // ).then((value) => runApp(const MyApp()));
+
   runApp(const MyApp());
 }
 
@@ -19,6 +26,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      //тема приложения темная
       darkTheme: ThemeData.dark().copyWith(
         colorScheme: kDarkColorScheme,
       ),

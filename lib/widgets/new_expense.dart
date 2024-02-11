@@ -1,6 +1,10 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/models/expense.dart';
 
+// создание формы для добавления расхода в котором есть поля для ввода названия, суммы, выбора даты и категории
 class NewExpense extends StatefulWidget {
   const NewExpense({super.key, required this.onAddExpense});
 
@@ -11,11 +15,11 @@ class NewExpense extends StatefulWidget {
 }
 
 class _NewExpenseState extends State<NewExpense> {
-  final _titleController = TextEditingController();
-  final _amountController = TextEditingController();
+ 
   DateTime? _selectedDate;
   Category _selectedCategory = Category.leisure;
 
+  // показать календарь для выбора даты
   void _presentDatePicker() async {
     final now = DateTime.now();
     final pickedDate = await showDatePicker(
@@ -29,12 +33,25 @@ class _NewExpenseState extends State<NewExpense> {
     });
   }
 
-  void _submitExpenseData() {
-    final enteredAmount = double.tryParse(_amountController.text);
-    final amountIsInvalid = enteredAmount == null || enteredAmount <= 0;
-    if (_titleController.text.trim().isEmpty ||
-        amountIsInvalid ||
-        _selectedDate == null) {
+  //показ алерта при неверном вводе в зависимости от платформы
+  void _showDialog() {
+    if (Platform.isMacOS) {
+      showCupertinoDialog(
+          context: context,
+          builder: (ctx) => CupertinoAlertDialog(
+                title: const Text('Invalid input'),
+                content: const Text(
+                    'Please make sure a valid title, amount and date'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                    },
+                    child: const Text('Okay'),
+                  ),
+                ],
+              ));
+    } else {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -51,9 +68,23 @@ class _NewExpenseState extends State<NewExpense> {
           ],
         ),
       );
+    }
+  }
+
+  final _titleController = TextEditingController(); //контроллер для ввода названия
+  final _amountController = TextEditingController(); //контроллер для ввода суммы
+
+  // проверка заполнения формы
+  void _submitExpenseData() {
+    final enteredAmount = double.tryParse(_amountController.text);
+    final amountIsInvalid = enteredAmount == null || enteredAmount <= 0;
+    if (_titleController.text.trim().isEmpty ||
+        amountIsInvalid ||
+        _selectedDate == null) {
+      _showDialog();
       return;
     }
-
+    // widget для передачи данных в родительский виджет
     widget.onAddExpense(
       Expense(
           title: _titleController.text,
@@ -61,9 +92,10 @@ class _NewExpenseState extends State<NewExpense> {
           date: _selectedDate!,
           category: _selectedCategory),
     );
-    Navigator.pop(context);
+    Navigator.pop(context); //закрытие модального окна
   }
 
+  // очистка контроллеров
   @override
   void dispose() {
     _titleController.dispose();
@@ -71,13 +103,14 @@ class _NewExpenseState extends State<NewExpense> {
     super.dispose();
   }
 
+  // создание формы для добавления расхода
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
       child: Column(
         children: [
-          TextField(
+          TextField( //поле для ввода названия
             controller: _titleController,
             maxLength: 50,
             keyboardType: TextInputType.text,
@@ -89,7 +122,7 @@ class _NewExpenseState extends State<NewExpense> {
           Row(
             children: [
               Expanded(
-                child: TextField(
+                child: TextField( //поле для ввода суммы
                   controller: _amountController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
@@ -108,7 +141,7 @@ class _NewExpenseState extends State<NewExpense> {
                         ? 'No date selected'
                         : formatter.format(_selectedDate!)),
                     IconButton(
-                      onPressed: _presentDatePicker,
+                      onPressed: _presentDatePicker,  //кнопка для выбора даты
                       icon: const Icon(Icons.calendar_month),
                     ),
                   ],
@@ -119,21 +152,21 @@ class _NewExpenseState extends State<NewExpense> {
           const SizedBox(height: 16),
           Row(
             children: [
-              DropdownButton(
+              DropdownButton( //выпадающий список для выбора категории
                 value: _selectedCategory,
                 items: Category.values
                     .map(
-                      (e) => DropdownMenuItem(
+                      (e) => DropdownMenuItem( //создание элемента списка
                         value: e,
                         child: Text(
                           e.name.toUpperCase(),
                         ),
                       ),
                     )
-                    .toList(),
+                    .toList(), // преобразование списка категорий в список элементов списка
                 onChanged: (value) {
                   if (value == null) return;
-                  setState(
+                  setState( //обновление состояния
                     () {
                       _selectedCategory = value;
                     },

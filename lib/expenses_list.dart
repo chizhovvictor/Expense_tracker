@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/models/expense.dart';
 
+//создаем список на главном экране при этом не управляем его состоянием а только отображаем данные
 class ExpensesList extends StatelessWidget {
   const ExpensesList(
       {super.key, required this.expenses, required this.onRemoveExpense});
@@ -10,16 +11,17 @@ class ExpensesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // создание динамичного списка расходов виджетом ListView.builder
     return ListView.builder(
       itemCount: expenses.length,
-      itemBuilder: (ctx, index) => Dismissible(
-        key: ValueKey(expenses[index]),
+      itemBuilder: (ctx, index) => Dismissible( //добавляем возможность удаления расхода свайпом
+        key: ValueKey(expenses[index]), //добавляем ключ для каждого расхода
         background: Container(
           color: Theme.of(context).colorScheme.error.withOpacity(0.75),
           margin: Theme.of(context).cardTheme.margin,
         ),
-        onDismissed: (direction) {
-          onRemoveExpense(expenses[index]);
+        onDismissed: (direction) { 
+          onRemoveExpense(expenses[index]); //удаляем расход
         },
         child: ExpenseItem(expenses[index]),
       ),
@@ -27,6 +29,7 @@ class ExpensesList extends StatelessWidget {
   }
 }
 
+// создание виджета для каждого расхода без управления состоянием
 class ExpenseItem extends StatelessWidget {
   const ExpenseItem(this.expense, {super.key});
 
@@ -34,6 +37,7 @@ class ExpenseItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // создание карточки для каждого расхода. открытка создает дополнительную рамку
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
